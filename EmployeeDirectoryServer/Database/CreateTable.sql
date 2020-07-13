@@ -81,3 +81,17 @@ CREATE PROCEDURE InsertEmployee
 AS
 INSERT Employees(LastName,FirstName, MiddleName, Birthday) VALUES
 (@lastName,@firstName, @middleName,@birthday)
+
+go
+CREATE PROCEDURE GETEmployeesPage
+   @pageSize INT,
+   @endElement INT
+AS
+WITH num_row
+AS
+(
+SELECT row_number() OVER (ORDER BY ID) as nom , *
+FROM Employees
+)
+SELECT * FROM num_row
+WHERE nom BETWEEN (@endElement - @pageSize) AND @endElement

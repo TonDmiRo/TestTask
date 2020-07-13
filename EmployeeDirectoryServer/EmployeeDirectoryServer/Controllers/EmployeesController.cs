@@ -31,10 +31,8 @@ namespace EmployeeDirectoryServer.Controllers {
             PageInfo pageInfo = new PageInfo { PageNumber = page, PageSize = _pageSize, TotalItems = totalEmployees };
 
             if (( totalEmployees > 0 ) && ( page > 0 ) && ( page <= pageInfo.TotalPages )) {
-
-                int beginElement = ( page - 1 ) * _pageSize + 1;
                 int endElement = page * _pageSize;
-                IEnumerable<Employee> employees = await _employeeRepository.GetEmployees(beginElement, endElement);
+                IEnumerable<Employee> employees = await _employeeRepository.GetEmployees(_pageSize, endElement);
 
 
                 IndexViewModel ivm = new IndexViewModel { PageInfo = pageInfo, Employees = employees };

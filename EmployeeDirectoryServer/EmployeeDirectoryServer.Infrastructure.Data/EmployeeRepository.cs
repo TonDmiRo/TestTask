@@ -50,35 +50,22 @@ namespace EmployeeDirectoryServer.Infrastructure.Data {
                 }
             }
         }
-        public async Task<IEnumerable<Employee>> GetEmployees(int begin, int end) {
+        public async Task<IEnumerable<Employee>> GetEmployees1(int pageSize, int endElement) {
             int count = await Count();
             if (count <= 0) { throw new Exception("Table is empty."); }
-            if (( begin > 0 ) && ( end > begin )) {
-                if (begin < count) {
-                    string sqlRequest = "SELECT * FROM dbo.Employees WHERE ID BETWEEN @begin AND @end";
-                    using (SqlConnection connection = new SqlConnection(_connectionString)) {
-                        using (SqlCommand cmd = new SqlCommand(sqlRequest, connection)) {
+            if (( pageSize > 0 ) && ( endElement > 0 )) {
 
-                            cmd.Parameters.Add(new SqlParameter
-                            {
-                                ParameterName = "@begin",
-                                Value = begin,
-                                SqlDbType = SqlDbType.Int
-                            });
-                            cmd.Parameters.Add(new SqlParameter
-                            {
-                                ParameterName = "@end",
-                                Value = end,
-                                SqlDbType = SqlDbType.Int
-                            });
-
-                            var response = new List<Employee>();
-                            await connection.OpenAsync();
-                            using (var reader = await cmd.ExecuteReaderAsync()) {
-                                while (await reader.ReadAsync()) {
-                                    response.Add(MapToEmployee(reader));
-                                }
+                string sqlRequest = $"SELECT * FROM (SELECT TOP {pageSize} * FROM (" +
+                    $"SELECT TOP {endElement} * FROM Employees ORDER BY ID) AS TAB1 ORDER BY ID DESC) AS TAB2 ORDER BY ID";
+                using (SqlConnection connection = new SqlConnection(_connectionString)) {
+                    using (SqlCommand cmd = new SqlCommand(sqlRequest, connection)) {
+                        var response = new List<Employee>();
+                        await connection.OpenAsync();
+                        using (var reader = await cmd.ExecuteReaderAsync()) {
+                            while (await reader.ReadAsync()) {
+                                response.Add(MapToEmployee(reader));
                             }
+
 
                             return response;
                         }
@@ -86,8 +73,47 @@ namespace EmployeeDirectoryServer.Infrastructure.Data {
                 }
             }
 
-            throw new NotImplementedException();
+            throw new ArgumentException();
         }
+        public async Task<IEnumerable<Employee>> GetEmployees(int pageSize, int endElement) {
+            int count = await Count();
+            if (count <= 0) { throw new Exception("Table is empty."); }
+            pageSize -= 1; // TODO: https://habr.com/ru/post/54448/ 
+            if (( pageSize > 0 ) && ( endElement > 0 )) {
+                using (SqlConnection connection = new SqlConnection(_connectionString)) {
+                    using (SqlCommand cmd = new SqlCommand("GETEmployeesPage", connection)) {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.Add(new SqlParameter
+                        {
+                            ParameterName = "@pageSize",
+                            Value = pageSize,
+                            SqlDbType = SqlDbType.Int
+                        });
+                        cmd.Parameters.Add(new SqlParameter
+                        {
+                            ParameterName = "@endElement",
+                            Value = endElement,
+                            SqlDbType = SqlDbType.Int
+                        });
+
+
+                        var response = new List<Employee>();
+                        await connection.OpenAsync();
+                        using (var reader = await cmd.ExecuteReaderAsync()) {
+                            while (await reader.ReadAsync()) {
+                                response.Add(MapToEmployee(reader));
+                            }
+
+
+                            return response;
+                        }
+                    }
+                }
+            }
+
+            throw new ArgumentException();
+        }
+
         public async Task<Employee> GetEmployee(int employeeId) {
             using (SqlConnection connection = new SqlConnection(_connectionString)) {
                 string sqlRequest = "SELECT * FROM dbo.Employees WHERE ID = @employeeId";
@@ -136,7 +162,7 @@ namespace EmployeeDirectoryServer.Infrastructure.Data {
                     cmd.Parameters.Add(new SqlParameter()
                     {
                         ParameterName = "@lastName",
-                       // Value = "TRUNCATE TABLE Employees",
+                        // Value = "TRUNCATE TABLE Employees",
                         Value = item.LastName,
                         SqlDbType = SqlDbType.NVarChar
                     });
@@ -169,7 +195,7 @@ namespace EmployeeDirectoryServer.Infrastructure.Data {
                 }
             }
         }
-       
+
         public async Task Delete(int employeeId) {
             using (SqlConnection connection = new SqlConnection(_connectionString)) {
                 string sqlRequest = $"DELETE FROM dbo.Employees WHERE ID = @employeeId";

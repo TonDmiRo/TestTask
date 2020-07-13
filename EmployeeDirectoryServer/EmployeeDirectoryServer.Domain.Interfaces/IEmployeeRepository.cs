@@ -10,7 +10,7 @@ namespace EmployeeDirectoryServer.Domain.Interfaces {
         //GET
         Task<int> Count();
         Task<IEnumerable<Employee>> GetAllEmployees();
-        Task<IEnumerable<Employee>> GetEmployees(int begin, int end);
+        Task<IEnumerable<Employee>> GetEmployees(int pageSize, int endElement);
         Task<Employee> GetEmployee(int id);
         Task<bool> EmployeeExists(int id);
         // POST
