@@ -172,7 +172,7 @@ namespace EmployeeDirectoryServer.Infrastructure.Data {
        
         public async Task Delete(int employeeId) {
             using (SqlConnection connection = new SqlConnection(_connectionString)) {
-                string sqlRequest = $"DELETE FROM dbo.Employees ID = @employeeId";
+                string sqlRequest = $"DELETE FROM dbo.Employees WHERE ID = @employeeId";
                 using (SqlCommand cmd = new SqlCommand(sqlRequest, connection)) {
                     cmd.Parameters.Add(new SqlParameter()
                     {

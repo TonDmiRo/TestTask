@@ -77,14 +77,9 @@ namespace EmployeeDirectoryServer.Controllers {
             return await _employeeRepository.Create(value);
         }
 
-        [HttpDelete("{id}")]
-        public async Task Delete(int id) {
-            await _employeeRepository.Delete(id);
-        }
-
         // DELETE: api/TodoItems/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<IActionResult>> DeleteTodoItem(int id) {
+        public async Task<ActionResult> DeleteTodoItem(int id) {
             bool idExists = await _employeeRepository.EmployeeExists(id);
             if (!idExists) {return NotFound(id);}
             try {
