@@ -13,45 +13,101 @@ namespace EmployeeDirectoryServer.Controllers {
     [Route("api/[controller]")]
     [ApiController]
     public class EmployeesController : ControllerBase {
-        readonly IEmployeeRepository _employeeRepository;
+        #region GET
+        [HttpGet]
+        public async Task<ActionResult<IndexViewModel>> GetEmployees() {
+            return await GetEmployeesPage(1);
+        }
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<Employee>> GetEmployee(int id) {
+            var response = await _employeeRepository.GetEmployee(id);
+            if (response == null) { return NotFound(); }
+            return response;
+        }
+        [HttpGet("/api/Employees/Page/{page:int}")]
+        public async Task<ActionResult<IndexViewModel>> GetEmployeesPage(int page) {
+            int totalEmployees = await _employeeRepository.Count();
 
-        public EmployeesController(IWebHostEnvironment hostEnv) {
-            string connectionString = new ConfigurationBuilder().SetBasePath(hostEnv.ContentRootPath).AddJsonFile("dbsettings.json").Build().GetConnectionString("DefaultConnection");
+            PageInfo pageInfo = new PageInfo { PageNumber = page, PageSize = _pageSize, TotalItems = totalEmployees };
 
-            if (string.IsNullOrEmpty(connectionString))
-                throw new ArgumentException("No connection string in config.json");
+            if (( totalEmployees > 0 ) && ( page > 0 ) && ( page <= pageInfo.TotalPages )) {
 
-            _employeeRepository = new EmployeeRepository(connectionString);
+                int beginElement = ( page - 1 ) * _pageSize + 1;
+                int endElement = page * _pageSize;
+                IEnumerable<Employee> employees = await _employeeRepository.GetEmployees(beginElement, endElement);
+
+
+                IndexViewModel ivm = new IndexViewModel { PageInfo = pageInfo, Employees = employees };
+                return ivm;
+            }
+            return NotFound();
         }
         /// <summary>
-        /// 
+        /// TODO: удалить?
         /// </summary>
         /// <returns>
         /// Зависит от версии. https://docs.microsoft.com/ru-ru/aspnet/core/web-api/action-return-types?view=aspnetcore-3.1
         /// 3.0:|IEnumerable<Employee>
         /// 2.1: Task<IEnumerable<Employee>> || IAsyncEnumerable<Employee>
         /// </returns>
-        [HttpGet]
-        public async Task<IEnumerable<Employee>> Get() {
+        [HttpGet("/api/Employees/All/")]
+        public async Task<IEnumerable<Employee>> GetAllEmployees() {
             return await _employeeRepository.GetAllEmployees();
         }
-        [HttpGet("{id:int}")]
-        public async Task<ActionResult<Employee>> Get(int id) {
-            var response = await _employeeRepository.GetEmployee(id);
-            if (response == null) { return NotFound(); }
-            return response;
+        #endregion
+
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> Put(int id, Employee employee) {
+            if (id != employee.ID) { return BadRequest(); }
+            try {
+                bool idExists = await _employeeRepository.EmployeeExists(id);
+                if (!idExists) {
+                    return NotFound(id);
+                }
+                await _employeeRepository.UpdateEmployee(employee);
+            }
+            catch (Exception) {
+                return NotFound(id);
+            }
+            return NoContent();
         }
 
-        // POST api/values
         [HttpPost]
-        public async Task Post([FromBody] Employee value) {
-            await _employeeRepository.Insert(value);
+        public async Task<ActionResult<Employee>> Post([FromBody] Employee value) {
+            return await _employeeRepository.Create(value);
         }
 
-        // DELETE api/values/5
         [HttpDelete("{id}")]
         public async Task Delete(int id) {
             await _employeeRepository.Delete(id);
         }
+
+        // DELETE: api/TodoItems/5
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<IActionResult>> DeleteTodoItem(int id) {
+            bool idExists = await _employeeRepository.EmployeeExists(id);
+            if (!idExists) {return NotFound(id);}
+            try {
+                await _employeeRepository.Delete(id);
+            }
+            catch (Exception e){
+                return Problem(detail: e.Message);
+
+            }
+            return NoContent();
+        }
+
+        #region private
+        private readonly IEmployeeRepository _employeeRepository;
+        private readonly int _pageSize; // количество объектов на страницу
+        public EmployeesController(IWebHostEnvironment hostEnv) {
+            string connectionString = new ConfigurationBuilder().SetBasePath(hostEnv.ContentRootPath).AddJsonFile("dbsettings.json").Build().GetConnectionString("DefaultConnection");
+            if (string.IsNullOrEmpty(connectionString)) { throw new ArgumentException("No connection string in config.json"); }
+
+
+            _employeeRepository = new EmployeeRepository(connectionString);
+            _pageSize = 10;
+        }
+        #endregion
     }
 }
