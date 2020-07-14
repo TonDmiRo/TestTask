@@ -77,10 +77,25 @@ CREATE PROCEDURE InsertEmployee
     @lastName NVARCHAR(30),
     @firstName NVARCHAR(30),
 	@middleName NVARCHAR(30),
-    @birthday DATE
+    @birthday DATE,
+	@ID int OUTPUT
 AS
+BEGIN
+SET NOCOUNT ON;
 INSERT Employees(LastName,FirstName, MiddleName, Birthday) VALUES
 (@lastName,@firstName, @middleName,@birthday)
+Set  @ID = SCOPE_IDENTITY()
+END
+
+go
+CREATE PROCEDURE FindByFIO
+    @lastName NVARCHAR(30),
+    @firstName NVARCHAR(30),
+	@middleName NVARCHAR(30)
+AS
+SELECT TOP 10  * 
+FROM Employees
+WHERE (UPPER(LastName) LIKE UPPER(@lastName +'%')) and (UPPER(FirstName) LIKE UPPER(@firstName+'%'))and (UPPER(MiddleName) LIKE UPPER(@middleName+'%'))
 
 go
 CREATE PROCEDURE GETEmployeesPage

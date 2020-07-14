@@ -9,10 +9,13 @@ namespace EmployeeDirectoryServer.Domain.Interfaces {
     public interface IEmployeeRepository {
         //GET
         Task<int> Count();
+        Task<bool> EmployeeExists(int id);
+        Task<Employee> GetEmployee(int id);
+
+
         Task<IEnumerable<Employee>> GetAllEmployees();
         Task<IEnumerable<Employee>> GetEmployees(int pageSize, int endElement);
-        Task<Employee> GetEmployee(int id);
-        Task<bool> EmployeeExists(int id);
+        Task<List<Employee>> GetEmployees(string lastName, string firstName, string middleName);
         // POST
         Task<Employee> Create(Employee item);
 

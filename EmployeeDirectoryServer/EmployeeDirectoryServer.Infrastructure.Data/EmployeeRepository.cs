@@ -78,7 +78,7 @@ namespace EmployeeDirectoryServer.Infrastructure.Data {
         public async Task<IEnumerable<Employee>> GetEmployees(int pageSize, int endElement) {
             int count = await Count();
             if (count <= 0) { throw new Exception("Table is empty."); }
-            pageSize -= 1; // TODO: https://habr.com/ru/post/54448/ 
+            pageSize -= 1; // для 10 элементов TODO: https://habr.com/ru/post/54448/ 
             if (( pageSize > 0 ) && ( endElement > 0 )) {
                 using (SqlConnection connection = new SqlConnection(_connectionString)) {
                     using (SqlCommand cmd = new SqlCommand("GETEmployeesPage", connection)) {
@@ -103,14 +103,55 @@ namespace EmployeeDirectoryServer.Infrastructure.Data {
                             while (await reader.ReadAsync()) {
                                 response.Add(MapToEmployee(reader));
                             }
-
-
                             return response;
                         }
                     }
                 }
             }
+            throw new ArgumentException();
+        }
+        public async Task<List<Employee>> GetEmployees(string lastName, string firstName, string middleName) {
+            int count = await Count();
+            if (count <= 0) { throw new Exception("Table is empty."); }
 
+            using (SqlConnection connection = new SqlConnection(_connectionString)) {
+                using (SqlCommand cmd = new SqlCommand("FindByFIO", connection)) {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    #region Procedure parameters
+                    // @lastName
+                    cmd.Parameters.Add(new SqlParameter()
+                    {
+                        ParameterName = "@lastName",
+                        // Value = "TRUNCATE TABLE Employees",
+                        Value = lastName,
+                        SqlDbType = SqlDbType.NVarChar
+                    });
+                    // @firstName
+                    cmd.Parameters.Add(new SqlParameter()
+                    {
+                        ParameterName = "@firstName",
+                        Value = firstName,
+                        SqlDbType = SqlDbType.NVarChar
+                    });
+                    // @middleName
+                    cmd.Parameters.Add(new SqlParameter()
+                    {
+                        ParameterName = "@middleName",
+                        Value = middleName,
+                        SqlDbType = SqlDbType.NVarChar
+                    });
+                    #endregion
+
+                    var response = new List<Employee>();
+                    await connection.OpenAsync();
+                    using (var reader = await cmd.ExecuteReaderAsync()) {
+                        while (await reader.ReadAsync()) {
+                            response.Add(MapToEmployee(reader));
+                        }
+                        return response;
+                    }
+                }
+            }
             throw new ArgumentException();
         }
 
@@ -137,12 +178,61 @@ namespace EmployeeDirectoryServer.Infrastructure.Data {
                 }
             }
         }
+
+
         #endregion
 
         // POST
-        public Task<Employee> Create(Employee item) {
-            //TODO: Create
-            throw new NotImplementedException();
+        public async Task<Employee> Create(Employee item) {
+            using (SqlConnection connection = new SqlConnection(_connectionString)) {
+                using (SqlCommand cmd = new SqlCommand("InsertEmployee", connection)) {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    #region Procedure parameters
+                    // @ID
+                    var valueIdParameter = cmd.Parameters.Add(new SqlParameter()
+                    {
+                        ParameterName = "@ID",
+                        Value = item.ID,
+                        SqlDbType = SqlDbType.Int
+                    });
+                    // @lastName
+                    cmd.Parameters.Add(new SqlParameter()
+                    {
+                        ParameterName = "@lastName",
+                        // Value = "TRUNCATE TABLE Employees",
+                        Value = item.LastName,
+                        SqlDbType = SqlDbType.NVarChar
+                    });
+                    // @firstName
+                    cmd.Parameters.Add(new SqlParameter()
+                    {
+                        ParameterName = "@firstName",
+                        Value = item.FirstName,
+                        SqlDbType = SqlDbType.NVarChar
+                    });
+                    // @middleName
+                    cmd.Parameters.Add(new SqlParameter()
+                    {
+                        ParameterName = "@middleName",
+                        Value = item.MiddleName,
+                        SqlDbType = SqlDbType.NVarChar
+                    });
+                    // @birthday
+                    cmd.Parameters.Add(new SqlParameter()
+                    {
+                        ParameterName = "@birthday",
+                        Value = item.Birthday,
+                        SqlDbType = SqlDbType.Date
+                    });
+                    #endregion
+                    valueIdParameter.Direction = ParameterDirection.Output;
+                    await connection.OpenAsync();
+
+                    await cmd.ExecuteNonQueryAsync();
+                    var id = int.Parse(valueIdParameter.Value.ToString());
+                    return await GetEmployee(id);
+                }
+            }
         }
 
         // PUT
@@ -229,6 +319,8 @@ namespace EmployeeDirectoryServer.Infrastructure.Data {
                 Birthday = (DateTime)reader["Birthday"]
             };
         }
+
+
 
         private readonly string _connectionString;
         public EmployeeRepository(string connectionString) {
