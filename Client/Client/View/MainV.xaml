@@ -1,0 +1,238 @@
+﻿<Window x:Class="Client.View.MainV"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Client.View"
+        xmlns:viewmodel="clr-namespace:Client.ViewModel"
+        xmlns:localUC="clr-namespace:Client.View.Pages"
+        xmlns:viewmodelUC="clr-namespace:Client.ViewModel.Pages"
+        mc:Ignorable="d"
+        Title="MainV"
+        Height="450"
+        Width="800"
+        WindowStartupLocation="CenterScreen">
+  <Window.Resources>
+    <Style TargetType="Popup">
+      <Style.Triggers>
+        <DataTrigger Binding="{Binding ElementName=IsCreateToggleButton, Path=IsChecked}"
+                     Value="True">
+          <Setter Property="IsOpen"
+                  Value="True" />
+        </DataTrigger>
+        <DataTrigger Binding="{Binding ElementName=IsCreateToggleButton, Path=IsChecked}"
+                     Value="False">
+          <Setter Property="IsOpen"
+                  Value="False" />
+        </DataTrigger>
+      </Style.Triggers>
+    </Style>
+  </Window.Resources>
+  <Grid Grid.Column="1">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="40" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="40" />
+        <ColumnDefinition Width="90" />
+        <ColumnDefinition Width="110" />
+        <ColumnDefinition Width="60" />
+        <ColumnDefinition Width="*" />
+        <ColumnDefinition Width="auto" />
+      </Grid.ColumnDefinitions>
+      <StackPanel Grid.Column="0">
+        <ToggleButton x:Name="IsCreateToggleButton"
+                      Margin="10"
+                      Content="+" />
+        <Popup OpacityMask="White">
+          <StackPanel Width="300"
+                      Background="LightGreen">
+            <TextBlock Text="Добавление сотрудниака:" />
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition  Width="*" />
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+              </Grid.RowDefinitions>
+
+              <TextBlock Text="Фамилия: "
+                         Grid.Column="0"
+                         Grid.Row="0" />
+              <TextBox Grid.Column="1"
+                       Grid.Row="0"
+                       Text="{Binding NewEmployeeLastName,UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                       PreviewTextInput="TextBox_PreviewTextInputLetter"
+                       PreviewKeyDown="TextBox_PreviewKeyDown"
+                       CommandManager.PreviewCanExecute="HandleCanExecute" />
+
+              <TextBlock Text="Имя: "
+                         Grid.Column="0"
+                         Grid.Row="1" />
+              <TextBox Grid.Column="1"
+                       Grid.Row="1"
+                       Text="{Binding NewEmployeeFirstName,UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                       PreviewTextInput="TextBox_PreviewTextInputLetter"
+                       PreviewKeyDown="TextBox_PreviewKeyDown"
+                       CommandManager.PreviewCanExecute="HandleCanExecute" />
+
+              <TextBlock Text="Отчество: "
+                         Grid.Column="0"
+                         Grid.Row="2" />
+              <TextBox Grid.Column="1"
+                       Grid.Row="2"
+                       Text="{Binding NewEmployeeMiddleName,UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                       PreviewTextInput="TextBox_PreviewTextInputLetter"
+                       PreviewKeyDown="TextBox_PreviewKeyDown"
+                       CommandManager.PreviewCanExecute="HandleCanExecute" />
+
+              <TextBlock Text="Birthday: "
+                         Grid.Column="0"
+                         Grid.Row="3" />
+              <TextBox Grid.Column="1"
+                       Grid.Row="3"
+                       Text="{Binding NewEmployeeBirthday,UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                       PreviewTextInput="TextBox_PreviewTextInputDateTime"
+                       PreviewKeyDown="TextBox_PreviewKeyDown"
+                       CommandManager.PreviewCanExecute="HandleCanExecute" />
+            </Grid>
+
+            <Button Command="{Binding InsertEmployeeCommand}">
+              <TextBlock Text="Добавить" />
+            </Button>
+          </StackPanel>
+        </Popup>
+      </StackPanel>
+
+
+
+
+
+      <TextBlock Grid.Column="1"
+                 Text="Employee"
+                 FontSize="18"
+                 FontWeight="DemiBold"
+                 HorizontalAlignment="Center"
+                 VerticalAlignment="Center" />
+      <ComboBox Margin="20,0,0,0"
+                Grid.Column="2"
+                ItemsSource="{Binding Keys}"
+                SelectedItem="{Binding SelectedPageNumEnum}"
+                FontSize="14"
+                BorderBrush="{x:Null}"
+                Background="{x:Null}"
+                VerticalAlignment="Center" />
+      <Button Grid.Column="3"
+              Margin="8"
+              Command="{Binding RefreshContentCommand}">
+        <TextBlock Text="Refresh" />
+      </Button>
+      <StackPanel Grid.Column="4"
+                  Margin="40,5,10,5"
+                  Orientation="Horizontal"
+                  HorizontalAlignment="Right">
+        <TextBox  Width="80"
+                  FontSize="16"
+                  VerticalContentAlignment="Center"
+                  HorizontalContentAlignment="Center"
+                  ToolBar.OverflowMode="AsNeeded"
+                  Text="{Binding EmployeeID}"
+                  PreviewTextInput="TextBox_PreviewTextInput"
+                  PreviewKeyDown="TextBox_PreviewKeyDown"
+                  CommandManager.PreviewCanExecute="HandleCanExecute" />
+        <Button Padding="5"
+                ToolBar.OverflowMode="AsNeeded"
+                Command="{Binding SearchByIdCommand}">
+          <TextBlock Text="Search by id" />
+        </Button>
+      </StackPanel>
+      <ToolBar Grid.Column="5"
+               ToolBarTray.IsLocked="True"
+               FontSize="16"
+               Background="{x:Null}"
+               HorizontalAlignment="Right">
+
+
+        <StackPanel ToolBar.OverflowMode="Always"
+                    Width="300">
+          <TextBlock Text="Поиск по ФИО:" />
+
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="auto" />
+              <ColumnDefinition  Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition />
+              <RowDefinition />
+              <RowDefinition />
+              <RowDefinition />
+            </Grid.RowDefinitions>
+
+            <TextBlock Text="Фамилия: "
+                       Grid.Column="0"
+                       Grid.Row="0" />
+            <TextBox Grid.Column="1"
+                     Grid.Row="0"
+                     Text="{Binding LastNameForSearch,UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                     PreviewTextInput="TextBox_PreviewTextInputLetter"
+                     PreviewKeyDown="TextBox_PreviewKeyDown"
+                     CommandManager.PreviewCanExecute="HandleCanExecute" />
+
+            <TextBlock Text="Имя: "
+                       Grid.Column="0"
+                       Grid.Row="1" />
+            <TextBox Grid.Column="1"
+                     Grid.Row="1"
+                     Text="{Binding FirstNameForSearch,UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                     PreviewTextInput="TextBox_PreviewTextInputLetter"
+                     PreviewKeyDown="TextBox_PreviewKeyDown"
+                     CommandManager.PreviewCanExecute="HandleCanExecute" />
+
+            <TextBlock Text="Отчество: "
+                       Grid.Column="0"
+                       Grid.Row="2" />
+            <TextBox Grid.Column="1"
+                     Grid.Row="2"
+                     Text="{Binding MiddleNameForSearch,UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                     PreviewTextInput="TextBox_PreviewTextInputLetter"
+                     PreviewKeyDown="TextBox_PreviewKeyDown"
+                     CommandManager.PreviewCanExecute="HandleCanExecute" />
+
+            <CheckBox Grid.Column="0"
+                      Grid.Row="3"
+                      Content="Сохранить запрос"
+                      IsChecked="{Binding ValueCheckboxForSearch}" />
+          </Grid>
+
+          <Button Command="{Binding FindEmployeesByFIOCommand}">
+            <TextBlock Text="Search" />
+          </Button>
+        </StackPanel>
+      </ToolBar>
+    </Grid>
+
+
+
+    <Grid x:Name="EmployeePages"
+          Grid.Row="1">
+      <ContentPresenter Content="{Binding Content,UpdateSourceTrigger=PropertyChanged}">
+        <ContentPresenter.Resources>
+          <DataTemplate DataType="{x:Type viewmodelUC:EmployeeListPageVM}">
+            <localUC:EmployeeListUC />
+          </DataTemplate>
+          <DataTemplate DataType="{x:Type viewmodelUC:TestRequestsPageVM}">
+            <localUC:TestRequestsUC />
+          </DataTemplate>
+        </ContentPresenter.Resources>
+      </ContentPresenter>
+    </Grid>
+
+  </Grid>
+</Window>

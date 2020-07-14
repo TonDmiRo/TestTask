@@ -1,0 +1,235 @@
+﻿<UserControl x:Class="Client.View.Pages.EmployeeListUC"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:Client.ViewModel.Pages"
+             xmlns:viewmodel="clr-namespace:Client.ViewModel.Pages"
+             mc:Ignorable="d"
+             d:DesignHeight="450"
+             d:DesignWidth="800"
+             d:DataContext="{d:DesignInstance viewmodel:EmployeeListPageVM, IsDesignTimeCreatable=True}">
+  <UserControl.Resources>
+
+    <Style x:Key="ListEmployeesStyle"
+           TargetType="ListBox">
+      <Setter Property="Padding"
+              Value="10" />
+      <Setter Property="ScrollViewer.HorizontalScrollBarVisibility"
+              Value="Disabled" />
+      <Setter Property="ScrollViewer.VerticalScrollBarVisibility"
+              Value="Visible" />
+    </Style>
+
+    <DataTemplate x:Key="EmployeeTemplate">
+      <Grid Margin="10">
+        <Grid.RowDefinitions>
+          <RowDefinition />
+          <RowDefinition />
+          <RowDefinition />
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Row="0"
+                   Text="{Binding Path=ID,StringFormat=ID: {0}}" />
+        <Grid Grid.Row="1">
+          <TextBlock FontSize="18">
+                <Run Text="FIO: " />
+                <Run Text="{Binding Path=LastName}" />
+                <Run Text="{Binding Path=FirstName}" />
+                <Run Text="{Binding Path=MiddleName}" />
+          </TextBlock>
+        </Grid>
+        <Grid Grid.Row="2">
+          <TextBlock Grid.Row="2">
+                <Run Text="Birthday" />
+                <Run Text="{Binding Path=Birthday,StringFormat=d}" />
+          </TextBlock>
+        </Grid>
+      </Grid>
+    </DataTemplate>
+
+    <DataTemplate x:Key="SelectedEmployeeTemplate">
+      <Grid Margin="10">
+        <Grid.RowDefinitions>
+          <RowDefinition />
+          <RowDefinition />
+          <RowDefinition />
+          <RowDefinition />
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Row="0"
+                   Text="{Binding Path=ID,StringFormat=ID: {0}}" />
+        <Grid Grid.Row="1">
+          <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+          </Grid.RowDefinitions>
+          <TextBlock  Grid.Row="0"
+                      FontSize="18">
+                <Run Text="FIO: " />
+                <Run Text="{Binding Path=LastName}" />
+                <Run Text="{Binding Path=FirstName}" />
+                <Run Text="{Binding Path=MiddleName}" />
+          </TextBlock>
+          <Grid Grid.Row="1"
+                Margin="30,10,0,10">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition />
+              <ColumnDefinition />
+              <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition  Width="30" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <TextBlock HorizontalAlignment="Center"
+                         Text="F:"
+                         FontSize="18" />
+              <TextBox Grid.Column="1"
+                       FontSize="14"
+                       Text="{Binding DataContext.NewEmployeeLastName,Mode=TwoWay,
+              UpdateSourceTrigger = PropertyChanged, ElementName=ListEmployees}"
+                       PreviewTextInput="TextBox_PreviewTextInputLetter"
+                       PreviewKeyDown="TextBox_PreviewKeyDown"
+                       CommandManager.PreviewCanExecute="HandleCanExecute" />
+
+            </Grid>
+            <Grid Grid.Column="1">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition  Width="30" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <TextBlock HorizontalAlignment="Center"
+                         Text="I:"
+                         FontSize="18" />
+              <TextBox Grid.Column="1"
+                       FontSize="14"
+                       Text="{Binding DataContext.NewEmployeeFirstName,Mode=TwoWay,
+              UpdateSourceTrigger = PropertyChanged, ElementName=ListEmployees}"
+                       PreviewTextInput="TextBox_PreviewTextInputLetter"
+                       PreviewKeyDown="TextBox_PreviewKeyDown"
+                       CommandManager.PreviewCanExecute="HandleCanExecute" />
+
+            </Grid>
+            <Grid Grid.Column="2">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition  Width="30" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <TextBlock HorizontalAlignment="Center"
+                         Text="O:"
+                         FontSize="18" />
+              <TextBox Grid.Column="1"
+                       FontSize="14"
+                       Text="{Binding DataContext.NewEmployeeMiddleName,Mode=TwoWay,
+              UpdateSourceTrigger = PropertyChanged, ElementName=ListEmployees}"
+                       PreviewTextInput="TextBox_PreviewTextInputLetter"
+                       PreviewKeyDown="TextBox_PreviewKeyDown"
+                       CommandManager.PreviewCanExecute="HandleCanExecute" />
+
+            </Grid>
+          </Grid>
+
+
+        </Grid>
+        <Grid Grid.Row="2">
+          <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+          </Grid.RowDefinitions>
+          <TextBlock Grid.Row="0"
+                     FontSize="14">
+                <Run Text="Birthday" />
+                <Run Text="{Binding Path=Birthday,StringFormat=d}" />
+          </TextBlock>
+          <TextBox Grid.Row="1"
+                   Text="{Binding DataContext.NewEmployeeBirthday,Mode=TwoWay,
+              UpdateSourceTrigger = PropertyChanged, ElementName=ListEmployees}"
+                   PreviewTextInput="TextBox_PreviewTextInputDateTime"
+                   PreviewKeyDown="TextBox_PreviewKeyDown"
+                   CommandManager.PreviewCanExecute="HandleCanExecute" />
+        </Grid>
+        <Grid Grid.Row="3">
+          <StackPanel Orientation="Horizontal">
+            <Button Padding="10,5,10,5"
+                    Margin="0,20,10,10"
+                    Content="Change"
+                    HorizontalAlignment="Left"
+                    Command="{Binding ElementName=ListEmployees, 
+                Path = DataContext.ChangeSelectedEmployeeCommand}" />
+
+            <Button Padding="10,5,10,5"
+                    Margin="0,20,10,10"
+                    Content="Delete"
+                    Command="{Binding ElementName=ListEmployees, 
+                Path = DataContext.DeleteByIdCommand}"
+                    HorizontalAlignment="Left"
+                    Background="#FFE6A3A3" />
+          </StackPanel>
+        </Grid>
+
+      </Grid>
+
+    </DataTemplate>
+
+    <Style TargetType="{x:Type ListBoxItem}"
+           x:Key="ContainerStyle">
+      <Setter Property="HorizontalContentAlignment"
+              Value="Stretch" />
+      <Setter Property="ContentTemplate"
+              Value="{StaticResource EmployeeTemplate}" />
+
+      <Style.Triggers>
+        <MultiDataTrigger>
+          <MultiDataTrigger.Conditions>
+            <Condition Binding="{Binding RelativeSource={RelativeSource Mode=Self},Path=IsSelected}"
+                       Value="True" />
+          </MultiDataTrigger.Conditions>
+          <Setter Property="ContentTemplate"
+                  Value="{StaticResource SelectedEmployeeTemplate}" />
+        </MultiDataTrigger>
+
+      </Style.Triggers>
+    </Style>
+
+  </UserControl.Resources>
+
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*" />
+      <RowDefinition Height="30" />
+    </Grid.RowDefinitions>
+    <ListBox Grid.Row="0"
+             x:Name="ListEmployees"
+             ItemsSource="{Binding Employees, UpdateSourceTrigger=PropertyChanged}"
+             SelectedItem="{Binding SelectedEmployee, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+             Style="{StaticResource ListEmployeesStyle}"
+             ItemContainerStyle="{StaticResource ContainerStyle}" />
+    <Grid Grid.Row="1"
+          HorizontalAlignment="Center">
+      <StackPanel Orientation="Horizontal">
+        <TextBox  x:Name="txtPage"
+                  Width="30"
+                  TextAlignment="Center"
+                  Text="{Binding SelectedEmployeePage,UpdateSourceTrigger=PropertyChanged}"
+                  FontSize="16"
+                  VerticalAlignment="Center"
+                  PreviewTextInput="TextBox_PreviewTextInput"
+                  PreviewKeyDown="TextBox_PreviewKeyDown"
+                  CommandManager.PreviewCanExecute="HandleCanExecute">
+          <TextBox.InputBindings>
+            <KeyBinding Key="Enter"
+                        Command="{Binding  SwitchToEmployeePageCommand}"
+                        CommandParameter="{Binding ElementName=txtPage, Path=Text}" />
+
+
+
+          </TextBox.InputBindings>
+        </TextBox>
+        <TextBlock Text="{Binding StringFormat=/{0}, Path=MaxEmployeePage}"
+                   VerticalAlignment="Center"
+                   FontSize="21" />
+
+      </StackPanel>
+    </Grid>
+  </Grid>
+</UserControl>

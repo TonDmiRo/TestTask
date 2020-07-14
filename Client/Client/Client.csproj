@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="EmployeeDirectoryServer.Domain.Core">
+      <HintPath>..\..\EmployeeDirectoryServer\EmployeeDirectoryServer.Domain.Core\bin\Debug\netstandard2.0\EmployeeDirectoryServer.Domain.Core.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
