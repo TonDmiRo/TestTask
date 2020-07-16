@@ -27,23 +27,22 @@ namespace Client.ViewModel.Pages {
         public string NewEmployeeMiddleName { get; set; }
         public string NewEmployeeBirthday { get; set; }
 
-        public int MaxEmployeePage {
-            get { return _maxEmployeePage; }
+        public int LastPage {
+            get { return _lastEmployeesPage; }
             set {
-                _maxEmployeePage = value;
+                _lastEmployeesPage = value;
                 OnPropertyChanged();
             }
         }
-        public string SelectedEmployeePage {
-            get { return _selectedEmployeePage; }
+        public string SelectedPage {
+            get { return _selectedEmployeesPage; }
             set {
-                _selectedEmployeePage = value;
+                _selectedEmployeesPage = value;
                 OnPropertyChanged();
             }
         }
 
-        private ICommand _switchToEmployeePageCommand;
-        public ICommand SwitchToEmployeePageCommand => _switchToEmployeePageCommand ?? ( _switchToEmployeePageCommand = new RelayCommand(SwitchToEmployeePage) );
+
 
 
         private ICommand _changeSelectedEmployeeCommand;
@@ -88,25 +87,46 @@ namespace Client.ViewModel.Pages {
 
 
 
-
+        private ICommand _switchToEmployeePageCommand;
+        public ICommand SwitchToEmployeePageCommand => _switchToEmployeePageCommand ?? ( _switchToEmployeePageCommand = new RelayCommand(SwitchToEmployeePage) );
         private void SwitchToEmployeePage(object parameter) {
-            int pageNum = Convert.ToInt32(SelectedEmployeePage);
-            MaxEmployeePage = EmployeeCollection.PageInfo.TotalPages;
+            if (!string.IsNullOrWhiteSpace(SelectedPage)) {
+                int pageNum = Convert.ToInt32(SelectedPage);
+                LastPage = EmployeeCollection.PageInfo.TotalPages;
+                SelectedPage = ( pageNum > LastPage ) ? LastPage.ToString() : pageNum.ToString();
 
-            pageNum = ( pageNum > MaxEmployeePage ) ? MaxEmployeePage : pageNum;
-            SelectedEmployeePage = pageNum.ToString();
-            EmployeeCollection.GetEmployeesPage(pageNum);
-            MaxEmployeePage = EmployeeCollection.PageInfo.TotalPages;
-            Employees = EmployeeCollection.GetResult();
+                EmployeeCollection.GetEmployeesPage(pageNum);
+                Employees = EmployeeCollection.GetResult();
+            }
+            else {
+                MessageBox.Show("Введите число!");
+            }
         }
-        #region private
+
+
+
+        #region ctor
         public EmployeeListPageVM(ReadOnlyObservableCollection<Employee> employees) {
             Employees = employees;
-            EmployeeCollection.TotalPagesChanged += new Action<int>(InitializeProp);
+            EmployeeCollection.TotalPagesChanged += new Action<int>(TotalPagesChangeHandler);
         }
-        public EmployeeListPageVM() {
-            MaxEmployeePage = 1;
+        private void TotalPagesChangeHandler(int newTotalPageCount) {
+            int currentPageNumber = ( string.IsNullOrEmpty(SelectedPage) ) ? 1 : Convert.ToInt32(SelectedPage);
 
+            LastPage = newTotalPageCount;
+            if (( LastPage <= 1 ) || ( currentPageNumber >= LastPage )) {
+                SelectedPage = LastPage.ToString();
+            }
+            else {
+
+                SelectedPage = ( currentPageNumber == 0 ) ? "1" : currentPageNumber.ToString();
+            }
+        }
+
+
+        public EmployeeListPageVM() {
+            LastPage = 1;
+            SelectedPage = "1";
             Employees = new ReadOnlyObservableCollection<Employee>(new ObservableCollection<Employee>() {
             new Employee() { ID = 12, LastName = "LLLLLLLL", FirstName = "FFFFFFF", MiddleName = "MMMMMMM", Birthday = new DateTime(10, 10, 01) },
             new Employee() { ID = 12, LastName = "LLLLLLLL", FirstName = "FFFFFFF", MiddleName = "MMMMMMM", Birthday = new DateTime(10, 10, 01) },
@@ -114,13 +134,11 @@ namespace Client.ViewModel.Pages {
             new Employee() { ID = 12, LastName = "LLLLLLLL", FirstName = "FFFFFFF", MiddleName = "MMMMMMM", Birthday = new DateTime(10, 10, 01) }
             });
         }
-        private void InitializeProp(int obj) {
-            MaxEmployeePage = obj;
-            int pageNum = ( string.IsNullOrEmpty(SelectedEmployeePage) ) ? 1 : Convert.ToInt32(SelectedEmployeePage);
-            SelectedEmployeePage = ( pageNum > obj ) ? MaxEmployeePage.ToString() : pageNum.ToString();
-        }
-        private int _maxEmployeePage;
-        private string _selectedEmployeePage;
+        #endregion
+
+        #region private
+        private int _lastEmployeesPage;
+        private string _selectedEmployeesPage;
         private Employee _selectedEmployee;
         #endregion
     }

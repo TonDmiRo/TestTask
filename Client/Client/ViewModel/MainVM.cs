@@ -32,7 +32,7 @@ namespace Client.ViewModel {
         private ICommand _refreshContentCommand;
         public ICommand RefreshContentCommand => _refreshContentCommand ?? ( _refreshContentCommand = new RelayCommand(RefreshContent) );
         private void RefreshContent(object parameter) {
-            EmployeeCollection.GetEmployeesPage(1);
+            EmployeeCollection.UpdateData();
             Content.Employees = EmployeeCollection.GetResult();
             IsConnected = true;
         }

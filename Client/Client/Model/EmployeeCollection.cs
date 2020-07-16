@@ -20,16 +20,16 @@ namespace Client.Model {
             return Result;
         }
 
-        #region Event
-        public static event Action<string> ThrownException;
-        private static void ThrowException(string e) {
-            ThrownException?.Invoke(e);
+
+        #region GET
+        internal static void UpdateData() {
+            if (PageInfo != null) {
+                GetEmployeesPage(PageInfo.PageNumber);
+            }
+            else {
+                GetEmployeesPage(1);
+            }
         }
-        public static event Action<int> TotalPagesChanged;
-        private static void OnTotalPagesChanged(int e) {
-            TotalPagesChanged?.Invoke(e);
-        }
-        #endregion
         internal static async void GetEmployeesPage(int page) {
             _employees.Clear();
 
@@ -37,8 +37,13 @@ namespace Client.Model {
                 var response = await HttpHelper.RequestGetAsync<IndexViewModel>(client, $"api/Employees/Page/{page}");
                 if (response.StatusCode == System.Net.HttpStatusCode.OK) {
                     IndexViewModel index = response.Result;
+
+                    int newTotalPageCount = index.PageInfo.TotalPages;
+                    if (( PageInfo == null ) || ( PageInfo.TotalPages != newTotalPageCount )) {
+                        OnTotalPagesChanged(newTotalPageCount);
+                    }
                     PageInfo = index.PageInfo;
-                    OnTotalPagesChanged(PageInfo.TotalPages);
+
                     foreach (var item in index.Employees) {
                         _employees.Add(item);
                     }
@@ -57,16 +62,15 @@ namespace Client.Model {
             try {
                 var response = await HttpHelper.RequestGetAsync<Employee>(client, $"api/Employees/{id}");
 
-                Employee employee = response.Result;
-                if (employee != null) {
-                    _employees.Add(employee);
-                }
+                bool resultIsNotNull = (response.Result != null);
+                if (resultIsNotNull) { _employees.Add(response.Result); }
+                OnTotalPagesChanged(( resultIsNotNull ) ? 1 : 0);
             }
             catch (Exception e) {
                 ThrowException(e.Message);
             }
         }
-        internal static async void FindEmployeesByFIO(string lastName,string firstName,string middleName) {
+        internal static async void FindEmployeesByFIO(string lastName, string firstName, string middleName) {
             _employees.Clear();
 
             try {
@@ -91,9 +95,9 @@ namespace Client.Model {
                 ThrowException(e.Message);
             }
         }
+        #endregion
 
-
-
+        // PUT
         internal async static void UpdateEmployee(int id, Employee newEmployee) {
             try {
                 var response = await HttpHelper.RequestPutAsync(client, $"api/Employees/{id}", newEmployee);
@@ -102,7 +106,7 @@ namespace Client.Model {
                 ThrowException(e.Message);
             }
         }
-
+        // POST
         internal async static void InsertEmployee(Employee empl) {
             try {
                 var response = await HttpHelper.RequestPostAsync<Employee>(client, $"api/Employees/", empl);
@@ -116,9 +120,10 @@ namespace Client.Model {
                 ThrowException(e.Message);
             }
         }
+        // DELETE
         internal async static void DeleteEmployeeById(Employee empl) {
             try {
-               
+
                 var response = await HttpHelper.RequestDeleteAsync(client, $"api/Employees/{empl.ID}");
 
                 if (response.StatusCode != HttpStatusCode.NoContent) {
@@ -131,16 +136,32 @@ namespace Client.Model {
             }
         }
 
-        #region private
-        private static ReadOnlyObservableCollection<Employee> Result;
 
-        private static readonly ObservableCollection<Employee> _employees;
+        #region Event
+        public static event Action<string> ThrownException;
+        private static void ThrowException(string e) {
+            ThrownException?.Invoke(e);
+        }
+
+        public static event Action<int> TotalPagesChanged;
+        /// <summary>
+        /// Необходим для UC
+        /// </summary>
+        /// <param name="totalPages">
+        /// totalPages > 0 - Ok;
+        /// totalPages = 0 - поиск не удался;
+        /// </param>
+        private static void OnTotalPagesChanged(int totalPages) {
+            if (totalPages < 0) { totalPages = 0; }
+            TotalPagesChanged?.Invoke(totalPages);
+        }
+        #endregion
+
+        #region ctor
         static EmployeeCollection() {
             _employees = new ObservableCollection<Employee>();
             InitializeHttpClient();
         }
-
-        private static HttpClient client;
         private static void InitializeHttpClient() {
             client = new HttpClient();
             string baseAddress;
@@ -154,6 +175,13 @@ namespace Client.Model {
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
+        #endregion
+
+        #region private
+        private static HttpClient client;
+
+        private static ReadOnlyObservableCollection<Employee> Result;
+        private static readonly ObservableCollection<Employee> _employees;
         #endregion
     }
 }

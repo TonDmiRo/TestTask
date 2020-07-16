@@ -210,7 +210,7 @@
         <TextBox  x:Name="txtPage"
                   Width="30"
                   TextAlignment="Center"
-                  Text="{Binding SelectedEmployeePage,UpdateSourceTrigger=PropertyChanged}"
+                  Text="{Binding SelectedPage,UpdateSourceTrigger=PropertyChanged}"
                   FontSize="16"
                   VerticalAlignment="Center"
                   PreviewTextInput="TextBox_PreviewTextInput"
@@ -225,7 +225,7 @@
 
           </TextBox.InputBindings>
         </TextBox>
-        <TextBlock Text="{Binding StringFormat=/{0}, Path=MaxEmployeePage}"
+        <TextBlock Text="{Binding StringFormat=/{0}, Path=LastPage}"
                    VerticalAlignment="Center"
                    FontSize="21" />
 
