@@ -38,81 +38,14 @@
         <ColumnDefinition Width="40" />
         <ColumnDefinition Width="90" />
         <ColumnDefinition Width="110" />
-        <ColumnDefinition Width="60" />
+        <ColumnDefinition Width="80" />
         <ColumnDefinition Width="*" />
         <ColumnDefinition Width="auto" />
       </Grid.ColumnDefinitions>
-      <StackPanel Grid.Column="0">
-        <ToggleButton x:Name="IsCreateToggleButton"
-                      Margin="10"
-                      Content="+" />
-        <Popup OpacityMask="White">
-          <StackPanel Width="300"
-                      Background="LightGreen">
-            <TextBlock Text="Добавление сотрудниака:" />
-            <Grid>
-              <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto" />
-                <ColumnDefinition  Width="*" />
-              </Grid.ColumnDefinitions>
-              <Grid.RowDefinitions>
-                <RowDefinition />
-                <RowDefinition />
-                <RowDefinition />
-                <RowDefinition />
-              </Grid.RowDefinitions>
-
-              <TextBlock Text="Фамилия: "
-                         Grid.Column="0"
-                         Grid.Row="0" />
-              <TextBox Grid.Column="1"
-                       Grid.Row="0"
-                       Text="{Binding NewEmployeeLastName,UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                       PreviewTextInput="TextBox_PreviewTextInputLetter"
-                       PreviewKeyDown="TextBox_PreviewKeyDown"
-                       CommandManager.PreviewCanExecute="HandleCanExecute" />
-
-              <TextBlock Text="Имя: "
-                         Grid.Column="0"
-                         Grid.Row="1" />
-              <TextBox Grid.Column="1"
-                       Grid.Row="1"
-                       Text="{Binding NewEmployeeFirstName,UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                       PreviewTextInput="TextBox_PreviewTextInputLetter"
-                       PreviewKeyDown="TextBox_PreviewKeyDown"
-                       CommandManager.PreviewCanExecute="HandleCanExecute" />
-
-              <TextBlock Text="Отчество: "
-                         Grid.Column="0"
-                         Grid.Row="2" />
-              <TextBox Grid.Column="1"
-                       Grid.Row="2"
-                       Text="{Binding NewEmployeeMiddleName,UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                       PreviewTextInput="TextBox_PreviewTextInputLetter"
-                       PreviewKeyDown="TextBox_PreviewKeyDown"
-                       CommandManager.PreviewCanExecute="HandleCanExecute" />
-
-              <TextBlock Text="Birthday: "
-                         Grid.Column="0"
-                         Grid.Row="3" />
-              <TextBox Grid.Column="1"
-                       Grid.Row="3"
-                       Text="{Binding NewEmployeeBirthday,UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                       PreviewTextInput="TextBox_PreviewTextInputDateTime"
-                       PreviewKeyDown="TextBox_PreviewKeyDown"
-                       CommandManager.PreviewCanExecute="HandleCanExecute" />
-            </Grid>
-
-            <Button Command="{Binding InsertEmployeeCommand}">
-              <TextBlock Text="Добавить" />
-            </Button>
-          </StackPanel>
-        </Popup>
-      </StackPanel>
-
-
-
-
+      <Button Grid.Column="0"
+              Margin="10"
+              Content="+"
+              Command="{Binding OpenWindowForAddingCommand}" />
 
       <TextBlock Grid.Column="1"
                  Text="Employee"
@@ -129,9 +62,9 @@
                 Background="{x:Null}"
                 VerticalAlignment="Center" />
       <Button Grid.Column="3"
-              Margin="8"
+              Margin="6,8,6,8"
               Command="{Binding RefreshContentCommand}">
-        <TextBlock Text="Refresh" />
+        <TextBlock Text="Update" />
       </Button>
       <StackPanel Grid.Column="4"
                   Margin="40,5,10,5"
@@ -157,7 +90,6 @@
                FontSize="16"
                Background="{x:Null}"
                HorizontalAlignment="Right">
-
 
         <StackPanel ToolBar.OverflowMode="Always"
                     Width="300">
@@ -217,8 +149,6 @@
         </StackPanel>
       </ToolBar>
     </Grid>
-
-
 
     <Grid x:Name="EmployeePages"
           Grid.Row="1">

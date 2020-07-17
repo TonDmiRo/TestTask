@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using Client.Model;
+using Client.View;
 using Client.ViewModel.Pages;
 using EmployeeDirectoryServer.Domain.Core;
 
@@ -37,6 +38,18 @@ namespace Client.ViewModel {
             IsConnected = true;
         }
 
+        private ICommand _openWindowForAddingCommand;
+        public ICommand OpenWindowForAddingCommand => _openWindowForAddingCommand ?? ( _openWindowForAddingCommand = new RelayCommand(OpenWindowForAdding) );
+        private void OpenWindowForAdding(object parameter) {
+            using (var window = new EmployeesCreationV()) {
+
+                window.ShowDialog();
+            }
+            EmployeeCollection.GetEmployeesPage(1);
+        }
+
+        #region SearchById
+        public string EmployeeID { get; set; }
         private ICommand _searchByIdCommand;
         public ICommand SearchByIdCommand => _searchByIdCommand ?? ( _searchByIdCommand = new RelayCommand(SearchById) );
         private void SearchById(object parameter) {
@@ -44,28 +57,6 @@ namespace Client.ViewModel {
 
             EmployeeCollection.FindEmployeeById(id);
             Content.Employees = EmployeeCollection.GetResult();
-        }
-
-        #region InsertEmployee
-        public string NewEmployeeLastName { get; set; }
-        public string NewEmployeeFirstName { get; set; }
-        public string NewEmployeeMiddleName { get; set; }
-        public string NewEmployeeBirthday { get; set; }
-
-        private ICommand _insertEmployeeCommand;
-        public ICommand InsertEmployeeCommand => _insertEmployeeCommand ?? ( _insertEmployeeCommand = new RelayCommand(InsertEmployee) );
-
-        private void InsertEmployee(object parameter) {
-            Employee newEmployee = new Employee
-            {
-                ID = -1,
-                LastName = NewEmployeeLastName,
-                FirstName = NewEmployeeFirstName,
-                MiddleName = NewEmployeeMiddleName,
-                Birthday = DateTime.Parse(NewEmployeeBirthday)
-            };
-            EmployeeCollection.InsertEmployee(newEmployee);
-
         }
         #endregion
 
@@ -88,13 +79,12 @@ namespace Client.ViewModel {
                 OnPropertyChanged();
             }
         }
-
         public bool ValueCheckboxForSearch { get; set; }
 
         private ICommand _findEmployeesByFIOCommand;
         public ICommand FindEmployeesByFIOCommand => _findEmployeesByFIOCommand ?? ( _findEmployeesByFIOCommand = new RelayCommand(FindEmployeesByFIO) );
         private void FindEmployeesByFIO(object parameter) {
-           
+
             EmployeeCollection.FindEmployeesByFIO(LastNameForSearch, FirstNameForSearch, MiddleNameForSearch);
             Content.Employees = EmployeeCollection.GetResult();
             IsConnected = true;
@@ -102,8 +92,6 @@ namespace Client.ViewModel {
             if (!ValueCheckboxForSearch) { LastNameForSearch = FirstNameForSearch = MiddleNameForSearch = string.Empty; }
         }
         #endregion
-
-        public string EmployeeID { get; set; }
 
         #region Pages
         public BasePageVM Content {
