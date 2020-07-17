@@ -79,9 +79,10 @@ namespace Client.ViewModel.Pages {
         private ICommand _deleteByIdCommand;
         public ICommand DeleteByIdCommand => _deleteByIdCommand ?? ( _deleteByIdCommand = new RelayCommand(DeleteById) );
         private void DeleteById(object parameter) {
-            EmployeeCollection.DeleteEmployeeById(SelectedEmployee);
-            if (SelectedEmployee == null) {
-                MessageBox.Show("Done!");
+            string message = $"Вы хотите удалить сотрудника(ID: {SelectedEmployee.ID})?";
+            MessageBoxResult result = MessageBox.Show(message, "Delete", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (result == MessageBoxResult.Yes) {
+                EmployeeCollection.DeleteEmployeeById(SelectedEmployee);
             }
         }
 
@@ -93,10 +94,12 @@ namespace Client.ViewModel.Pages {
             if (!string.IsNullOrWhiteSpace(SelectedPage)) {
                 int pageNum = Convert.ToInt32(SelectedPage);
                 LastPage = EmployeeCollection.PageInfo.TotalPages;
-                SelectedPage = ( pageNum > LastPage ) ? LastPage.ToString() : pageNum.ToString();
+                pageNum = ( pageNum > LastPage ) ? LastPage : pageNum;
 
                 EmployeeCollection.GetEmployeesPage(pageNum);
                 Employees = EmployeeCollection.GetResult();
+
+                SelectedPage = pageNum.ToString();
             }
             else {
                 MessageBox.Show("Введите число!");
