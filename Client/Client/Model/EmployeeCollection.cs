@@ -32,30 +32,32 @@ namespace Client.Model {
         }
         internal static async void GetEmployeesPage(int page) {
             _employees.Clear();
+            if (page>=1) {
+                try {
+                    var response = await HttpHelper.RequestGetAsync<IndexViewModel>(client, $"api/Employees/Page/{page}");
+                    if (response.StatusCode == System.Net.HttpStatusCode.OK) {
+                        IndexViewModel index = response.Result;
 
-            try {
-                var response = await HttpHelper.RequestGetAsync<IndexViewModel>(client, $"api/Employees/Page/{page}");
-                if (response.StatusCode == System.Net.HttpStatusCode.OK) {
-                    IndexViewModel index = response.Result;
+                        int newTotalPageCount = index.PageInfo.TotalPages;
+                        if (( PageInfo == null ) || ( PageInfo.TotalPages != newTotalPageCount )) {
+                            OnTotalPagesChanged(newTotalPageCount);
+                        }
+                        PageInfo = index.PageInfo;
 
-                    int newTotalPageCount = index.PageInfo.TotalPages;
-                    if (( PageInfo == null ) || ( PageInfo.TotalPages != newTotalPageCount )) {
-                        OnTotalPagesChanged(newTotalPageCount);
+                        foreach (var item in index.Employees) {
+                            _employees.Add(item);
+                        }
                     }
-                    PageInfo = index.PageInfo;
-
-                    foreach (var item in index.Employees) {
-                        _employees.Add(item);
+                    else {
+                        throw new FileNotFoundException("Page not found");
                     }
-                }
-                else {
-                    throw new FileNotFoundException("Page not found");
-                }
 
+                }
+                catch (Exception e) {
+                    ThrowException(e.Message);
+                }
             }
-            catch (Exception e) {
-                ThrowException(e.Message);
-            }
+            else {ThrowException("Page not found");}
         }
         internal static async void FindEmployeeById(int id) {
             _employees.Clear();
@@ -107,10 +109,14 @@ namespace Client.Model {
             }
         }
         // POST
-        internal async static void InsertEmployee(Employee empl) {
+        static object _sender;
+        internal async static void InsertEmployee(object sender,Employee empl) {
             try {
                 var response = await HttpHelper.RequestPostAsync<Employee>(client, $"api/Employees/", empl);
-                _employees.Clear();
+                if (!ReferenceEquals(_sender, sender)) {
+                    _sender = sender;
+                    _employees.Clear();
+                }
                 Employee employee = response.Result;
                 if (employee != null) {
                     _employees.Add(employee);
