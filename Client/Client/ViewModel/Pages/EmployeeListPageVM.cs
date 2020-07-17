@@ -46,7 +46,7 @@ namespace Client.ViewModel.Pages {
 
 
         private ICommand _changeSelectedEmployeeCommand;
-        public ICommand ChangeSelectedEmployeeCommand => _changeSelectedEmployeeCommand ?? ( _changeSelectedEmployeeCommand = new RelayCommand(ChangeSelectedEmployee) );
+        public ICommand ChangeSelectedEmployeeCommand => _changeSelectedEmployeeCommand ?? ( _changeSelectedEmployeeCommand = new RelayCommand(ChangeSelectedEmployee,CanChangeSelectedEmployee) );
         private void ChangeSelectedEmployee(object parameter) {
             Employee newEmployee = new Employee
             {
@@ -73,6 +73,15 @@ namespace Client.ViewModel.Pages {
             SelectedEmployee.MiddleName = emp.MiddleName;
             SelectedEmployee.Birthday = emp.Birthday;
             SelectedEmployee = null;
+        }
+        private bool CanChangeSelectedEmployee(object parameter) {
+            bool b1 = DateTime.TryParse(NewEmployeeBirthday, out DateTime test);
+            if (( b1 ) && ( test.Year > 14 )) {
+                return true;
+            }
+            else {
+                return false;
+            }
         }
 
 
