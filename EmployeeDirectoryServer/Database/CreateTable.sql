@@ -103,10 +103,15 @@ CREATE PROCEDURE GETEmployeesPage
    @endElement INT
 AS
 WITH num_row
-AS
-(
-SELECT row_number() OVER (ORDER BY ID) as nom , *
-FROM Employees
+AS(
+  SELECT row_number() OVER (ORDER BY ID) as nom, ID
+  FROM Employees
 )
-SELECT * FROM num_row
-WHERE nom BETWEEN (@endElement - @pageSize) AND @endElement
+
+SELECT emp.* 
+FROM (
+	SELECT ID FROM num_row
+	WHERE nom BETWEEN (@endElement - @pageSize) AND @endElement
+) as foundElements
+JOIN Employees as emp ON (foundElements.ID=emp.ID)
+
