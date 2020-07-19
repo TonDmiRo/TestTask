@@ -112,11 +112,12 @@ namespace Client.Model {
         static object _sender;
         internal async static void InsertEmployee(object sender,Employee empl) {
             try {
-                var response = await HttpHelper.RequestPostAsync<Employee>(client, $"api/Employees/", empl);
                 if (!ReferenceEquals(_sender, sender)) {
                     _sender = sender;
                     _employees.Clear();
                 }
+
+                var response = await HttpHelper.RequestPostAsync<Employee>(client, $"api/Employees/", empl);
                 Employee employee = response.Result;
                 if (employee != null) {
                     _employees.Add(employee);
@@ -171,12 +172,9 @@ namespace Client.Model {
         private static void InitializeHttpClient() {
             client = new HttpClient();
             string baseAddress;
-#if ( DEBUG)
+
             string str = ConfigurationManager.AppSettings["LocalHost"];
-            baseAddress = str != null ? str : "http://localhost:56104/"; // для View 
-#else
-            baseAddress = ConfigurationManager.AppSettings["LocalHost"];
-#endif
+            baseAddress = str ?? "http://localhost:5000/"; 
             client.BaseAddress = new Uri(baseAddress);
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
