@@ -46,7 +46,7 @@ namespace Client.ViewModel.Pages {
 
 
         private ICommand _changeSelectedEmployeeCommand;
-        public ICommand ChangeSelectedEmployeeCommand => _changeSelectedEmployeeCommand ?? ( _changeSelectedEmployeeCommand = new RelayCommand(ChangeSelectedEmployee,CanChangeSelectedEmployee) );
+        public ICommand ChangeSelectedEmployeeCommand => _changeSelectedEmployeeCommand ?? ( _changeSelectedEmployeeCommand = new RelayCommand(ChangeSelectedEmployee, CanChangeSelectedEmployee) );
         private void ChangeSelectedEmployee(object parameter) {
             Employee newEmployee = new Employee
             {
@@ -55,7 +55,7 @@ namespace Client.ViewModel.Pages {
                 FirstName = ( string.IsNullOrWhiteSpace(NewEmployeeFirstName) != true ) ? NewEmployeeFirstName : SelectedEmployee.FirstName,
                 MiddleName = ( string.IsNullOrWhiteSpace(NewEmployeeMiddleName) != true ) ? NewEmployeeMiddleName : SelectedEmployee.MiddleName
             };
-
+            // TODO: Month
             int laborActivity = DateTime.Now.Year - 14;
             DateTime dateTime = DateTime.Parse(NewEmployeeBirthday);
             if (( dateTime > new DateTime(1900, 1, 1) ) && ( dateTime.Year < laborActivity )) {
@@ -139,12 +139,17 @@ namespace Client.ViewModel.Pages {
         public EmployeeListPageVM() {
             LastPage = 1;
             SelectedPage = "1";
+#if ( DEBUG )
             Employees = new ReadOnlyObservableCollection<Employee>(new ObservableCollection<Employee>() {
-            new Employee() { ID = 12, LastName = "LLLLLLLL", FirstName = "FFFFFFF", MiddleName = "MMMMMMM", Birthday = new DateTime(10, 10, 01) },
-            new Employee() { ID = 12, LastName = "LLLLLLLL", FirstName = "FFFFFFF", MiddleName = "MMMMMMM", Birthday = new DateTime(10, 10, 01) },
-            new Employee() { ID = 12, LastName = "LLLLLLLL", FirstName = "FFFFFFF", MiddleName = "MMMMMMM", Birthday = new DateTime(10, 10, 01) },
-            new Employee() { ID = 12, LastName = "LLLLLLLL", FirstName = "FFFFFFF", MiddleName = "MMMMMMM", Birthday = new DateTime(10, 10, 01) }
+            new Employee() { ID = -1, LastName = "Белозёров", FirstName = "Аввакуум", MiddleName = "Олегович", Birthday = new DateTime(1988, 01, 01) },
+            new Employee() { ID = -1, LastName = "Беляев", FirstName = "Денис", MiddleName = "Александрович", Birthday = new DateTime(1977, 01, 11) },
+            new Employee() { ID = -1, LastName = "Зыков", FirstName = "Мирослав", MiddleName = "Оскарович", Birthday = new DateTime(1966, 11, 10) },
+            new Employee() { ID = -1, LastName = "Александров", FirstName = "Варлаам", MiddleName = "Германович", Birthday = new DateTime(1955, 11, 11) }
             });
+#else
+            Employees = new ReadOnlyObservableCollection<Employee>(new ObservableCollection<Employee>());
+#endif
+
         }
         #endregion
 
