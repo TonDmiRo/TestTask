@@ -8,7 +8,7 @@ namespace Client.View {
         const string onlyNumber = @"^[1-9]{1}\d{0,}$";
         const string onlyLetters = @"^[A-Za-zА-Яа-яёЁ]{1,}$";
 
-        const string onlyDateTime = @"^[0-9\.-\/]*$";  // YYYY-MM-DD
+        const string onlyDateTime = @"^[0-9\.\-\/]*$";  // YYYY-MM-DD
         const string onlyDateTime1 = @"^[1-9]{1}[0-9]{3}-(0[1-9]|1[012])-(0[1-9]|1[0-9]|2[0-9]|3[01])$";  // YYYY-MM-DD
         const string onlyDateTime2 = @"^(0[1-9]|1[0-9]|2[0-9]|3[01])\/(0[1-9]|1[012])\/[1-9]{1}[0-9]{3}$"; // DD/MM/YYYY
         const string onlyDateTime3 = @"^(0[1-9]|1[0-9]|2[0-9]|3[01])\.(0[1-9]|1[012])\.[1-9]{1}[0-9]{3}$"; // DD.MM.YYYY
