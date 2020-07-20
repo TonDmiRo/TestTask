@@ -75,13 +75,8 @@ namespace Client.ViewModel.Pages {
             SelectedEmployee = null;
         }
         private bool CanChangeSelectedEmployee(object parameter) {
-            bool b1 = DateTime.TryParse(NewEmployeeBirthday, out DateTime test);
-            if (( b1 ) && ( test.Year > 14 )) {
-                return true;
-            }
-            else {
-                return false;
-            }
+            return Validation.IsValidDate(NewEmployeeBirthday);
+            // TODO: FIO > char[2];
         }
 
 

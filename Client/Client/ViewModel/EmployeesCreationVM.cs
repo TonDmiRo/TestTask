@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Windows.Input;
+
 using Client.Model;
 using Client.ViewModel.Pages;
+
 using EmployeeDirectoryServer.Domain.Core;
 
 namespace Client.ViewModel {
@@ -32,13 +32,8 @@ namespace Client.ViewModel {
             Content.Employees = EmployeeCollection.GetResult();
         }
         private bool CanInsertEmployee(object parameter) {
-            bool b1 = DateTime.TryParse(NewEmployeeBirthday, out DateTime test);
-            if (( b1 ) && ( test.Year > 14 )) {
-                return true;
-            }
-            else {
-                return false;
-            }
+            return Validation.IsValidDate(NewEmployeeBirthday);
+            // TODO: FIO > char[2];
         }
     }
 }

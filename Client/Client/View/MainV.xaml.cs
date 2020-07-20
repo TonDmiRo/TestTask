@@ -27,14 +27,13 @@ namespace Client.View {
         }
 
         private void TextBox_PreviewTextInputLetter(object sender, TextCompositionEventArgs e) {
-
             string text = ( sender as TextBox ).Text;
             if (text.Length >= 30 || !InputCheck.IsOnlyLetters(text + e.Text)) {
                 e.Handled = true;
             }
         }
-        private void TextBox_PreviewTextInputDateTime(object sender, TextCompositionEventArgs e) {
 
+        private void TextBox_PreviewTextInputDateTime(object sender, TextCompositionEventArgs e) {
             string text = ( sender as TextBox ).Text;
             if (text.Length >= 10 || !InputCheck.IsOnlyDateTime(text + e.Text)) {
                 e.Handled = true;
